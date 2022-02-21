@@ -1,0 +1,4 @@
+flask
+pyshorteners
+psycopg2
+gunicorn
