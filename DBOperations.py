@@ -1,6 +1,7 @@
 import psycopg2
 import string
-import random
+from random import choices
+from datetime import datetime
 
 
 class PostGreSQL:
@@ -56,11 +57,13 @@ class PostGreSQL:
         This function drop table if already exists and
         create new table for urls and url metadata
         """
-        table_column_string = "id_ integer primary key not null, long text not null, short text, TotalHits bigint, HourlyHits bigint"
+        table_column_string = '''id_ serial primary key not null, long varchar, 
+                                short varchar(200), visits integer default 0,
+                                link_added date default current_timestamp'''
         try:
             drop_table_query = "drop table if exists %s" % (self.table_name)
 
-            create_table_query = "create table %s (%s)" % (self.table_name, table_column_string)
+            create_table_query = "create table if not exists %s (%s)" % (self.table_name, table_column_string)
 
             # Creating cursor
             cursor, connection = self.createCursor()
@@ -122,12 +125,15 @@ class PostGreSQL:
         except Exception as e:
             raise Exception(f"(closeCursor): Something went wrong on closing cursor\n" + str(e))
 
-    def shorten_url(self):
-        letters = string.ascii_lowercase + string.ascii_uppercase
-        while True:
-            rand_letters = random.choices(letters, k=4)
-            rand_letters = "".join(rand_letters)
-            #short_url = "select short from url where long = %s" % str(long_url)
+    def generate_short_link(self):
+        characters = string.ascii_lowercase + string.ascii_uppercase + string.digits
+
+        short_url = ''.join(choices(characters, k=3))
+        link = self.check_if_short_url_exists(short_url)
+        
+        if link:
+            return self.generate_short_link()
+        return short_url
 
     def get_shorten_url_from_DB(self, long_url):
         """
@@ -216,3 +222,88 @@ class PostGreSQL:
         self.closeConnection(connection)
 
         return check_status[0]
+    
+    def check_if_short_url_exists(self,short_url):
+        """
+        This function checks existence of short url in the
+        database name and returns boolean value.
+        :param short url:
+        :return: Boolean
+        """
+        # checks if already short-url exists
+        check_query = "select exists(select short from url where short='{}');".format(short_url)
+
+        # Creating cursor
+        cursor, connection = self.createCursor()
+
+        # Cursor executing the shorten_url_query
+        cursor.execute(check_query)
+
+        # Fetching boolean from cursor and storing into check_status variable
+        check_status = cursor.fetchone()
+
+        # Commit the transaction
+        connection.commit()
+
+        # Close the cursor
+        self.closeCursor(cursor)
+
+        # Close the connection
+        self.closeConnection(connection)
+
+        return check_status[0]
+
+    def get_original_link_from_DB(self, short_url):
+        """
+        This function retreives and returns original url from database
+        :param short_url:
+        :return: long_url
+        """
+        try:
+            short_url = str(short_url)
+            original_url_query = "select long from url where short='{}'" .format(short_url)
+
+            # Creating cursor
+            cursor, connection = self.createCursor()
+
+            # Cursor executing the shorten_url_query
+            cursor.execute(original_url_query)
+
+            # Fetching short from cursor and storing into shorten_url
+            original_url = cursor.fetchone()
+
+            # Commit the transaction
+            connection.commit()
+
+            # Close the cursor
+            self.closeCursor(cursor)
+
+            # Close the connection
+            self.closeConnection(connection)
+
+            return original_url[0]
+
+        except Exception as e:
+            raise Exception(f"Something went wrong on getting short url from DB\n" + str(e))
+        
+    def add_up_url_visits(self, short_url):        
+        """
+        This function adds up the visit count of given short-url in db
+        :param: short-url
+        """
+        add_up_visits_query = "update url set visits = visits + 1 where short = '{}'".format(short_url)
+
+        # Creating cursor
+        cursor, connection = self.createCursor()
+
+        # Cursor executing the shorten_url_query
+        cursor.execute(add_up_visits_query)
+
+        # Commit the transaction
+        connection.commit()
+
+        # Close the cursor
+        self.closeCursor(cursor)
+
+        # Close the connection
+        self.closeConnection(connection)
