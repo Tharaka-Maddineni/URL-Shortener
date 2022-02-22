@@ -1,8 +1,10 @@
 import psycopg2
-from pyshorteners import Shortener
+import string
+import random
+
 
 class PostGreSQL:
-    table_name = "url";
+    table_name = "url"
     def __init__(self, host, port, dbname, user, password):
         """
         This function sets the database parameters
@@ -120,43 +122,45 @@ class PostGreSQL:
         except Exception as e:
             raise Exception(f"(closeCursor): Something went wrong on closing cursor\n" + str(e))
 
-    def get_shorten_url(self, long_url):
+    def shorten_url(self):
+        letters = string.ascii_lowercase + string.ascii_uppercase
+        while True:
+            rand_letters = random.choices(letters, k=4)
+            rand_letters = "".join(rand_letters)
+            #short_url = "select short from url where long = %s" % str(long_url)
+
+    def get_shorten_url_from_DB(self, long_url):
         """
         This function stores the original url into database and returns the shortened url
         :param long_url:
         :return: short_url
         """
         try:
-            if self.check_if_url_exists(long_url):
+            long_url = str(long_url)
+            shorten_url_query = "select short from url where long='{}'" .format(long_url)
 
-                shorten_url_query = "select short from url where long = {}".format(long_url)
+            # Creating cursor
+            cursor, connection = self.createCursor()
 
-                # Creating cursor
-                cursor, connection = self.createCursor()
+            # Cursor executing the shorten_url_query
+            cursor.execute(shorten_url_query)
 
-                # Cursor executing the shorten_url_query
-                cursor.execute(shorten_url_query)
+            # Fetching short from cursor and storing into shorten_url
+            shorten_url = cursor.fetchone()
 
-                # Commit the transaction
-                connection.commit()
+            # Commit the transaction
+            connection.commit()
 
-                # Close the cursor
-                self.closeCursor(cursor)
+            # Close the cursor
+            self.closeCursor(cursor)
 
-                # Close the connection
-                self.closeConnection(connection)
+            # Close the connection
+            self.closeConnection(connection)
 
-            else:
-                shortener_obj = Shortener()
-                shorten_url = shortener_obj.tinyurl.short(long_url)
-
-                # Upload or insert long url and short url into database
-                self.add_long_short_to_DB(long_url, shorten_url)
-
-            return shorten_url
+            return shorten_url[0]
 
         except Exception as e:
-            raise Exception(f"Something went wrong on getting shortened url\n" + str(e))
+            raise Exception(f"Something went wrong on getting short url from DB\n" + str(e))
 
     def add_long_short_to_DB(self, long, short):
 
@@ -166,9 +170,22 @@ class PostGreSQL:
         :param short:
         :return:
         """
-        count = 1
-        query = "insert into {} values({}, {}, {})".format(self.table_name,count,long,short)
-        count += 1
+        add_long_short_query = "insert into url(long,short) values('{}', '{}')".format(str(long),str(short))
+
+        # Creating cursor
+        cursor, connection = self.createCursor()
+
+        # Cursor executing the shorten_url_query
+        cursor.execute(add_long_short_query)
+
+        # Commit the transaction
+        connection.commit()
+
+        # Close the cursor
+        self.closeCursor(cursor)
+
+        # Close the connection
+        self.closeConnection(connection)
 
     def check_if_url_exists(self, long_url):
         """
@@ -178,5 +195,24 @@ class PostGreSQL:
         :return: Boolean
         """
         # checks if already long-url exists
-        query = "select exists(select long from {} where long='{}');".format(self.table_name,long_url)
-        return query
+        check_query = "select exists(select long from {} where long='{}');".format(self.table_name,long_url)
+
+        # Creating cursor
+        cursor, connection = self.createCursor()
+
+        # Cursor executing the shorten_url_query
+        cursor.execute(check_query)
+
+        # Fetching boolean from cursor and storing into check_status variable
+        check_status = cursor.fetchone()
+
+        # Commit the transaction
+        connection.commit()
+
+        # Close the cursor
+        self.closeCursor(cursor)
+
+        # Close the connection
+        self.closeConnection(connection)
+
+        return check_status[0]

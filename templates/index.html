@@ -9,15 +9,8 @@
             <div class="form-floating mb-3">
                 <input type="text" name="url" id="url"
                     placeholder="https://example.com" class="form-control"
-                       pattern="https://.*"
                     value="{{ request.form['url'] }}" required></input>
                 <label for="url">URL</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" name="custom_id" id="custom_id"
-                    placeholder="Want to customise? (optional)" class="form-control"
-                    value="{{ request.form['custom_id'] }}"></input>
-                <label for="custom_id">Custom Short ID</label>
             </div>
 
             <div class="form-group text-center">
@@ -25,10 +18,17 @@
             </div>
             </form>
 
-            {% if short_url %}
-            <hr>
-            <span><a href="{{ short_url }}" target="_blank">{{ short_url }}</a></span>
-            {% endif %}
+            <div>
+                {% if short_url %}
+                    <hr>
+                    <span>
+                        <p style="color:green;">Short URL :
+                            <a href="{{ short_url }}" target="_blank">{{ short_url }}</a>
+                        </p>
+                    </span>
+                {% endif %}
+            </div>
+
         </div>
         <div class="col-md-2"></div>
     </div>

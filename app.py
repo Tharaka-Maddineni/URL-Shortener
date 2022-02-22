@@ -1,5 +1,5 @@
-from pyshorteners import Shortener
-from flask import Flask,render_template,request
+import pyshorteners
+from flask import Flask,render_template,request,redirect
 from DBOperations import PostGreSQL
 
 app = Flask(__name__)
@@ -14,21 +14,33 @@ password = 'Walker1510'
 
 # Creating PostGreSQL database object
 db_object = PostGreSQL(host, port, dbname, user, password)
-db_object.createTable()
+#db_object.createTable()
+
+# Function to shorten the URL
+def shorten_Url(url):
+
+    shorten_url = pyshorteners.Shortener().tinyurl.short(url)
+
+    # Upload or insert long url and short url into database
+    db_object.add_long_short_to_DB(url, shorten_url)
+    return shorten_url
+
 
 @app.route('/', methods = ['POST','GET'])
 def get_short_URL():
     if request.method == 'POST':
-        long_url = request.form['url']
-        # custom_id = request.form['custom_id']
+        original_url = request.form['url']
 
         # Check if URL already exists in DB
-        found_url = db_object.check_if_url_exists(long_url)
+        found_url = db_object.check_if_url_exists(original_url)
         if found_url:
-            shorten_url = "select short from url where long = {}".format(long_url)
+            shorten_url = db_object.get_shorten_url_from_DB(original_url)
+            return render_template('index.html',
+                                   short_url=shorten_url)
         else:
-            pass
-        return render_template('results.html', shorten_url = shorten_url)
+            shorten_url = shorten_Url(original_url)
+            return render_template('index.html',
+                               short_url = shorten_url)
     else:
         return render_template('index.html')
 
