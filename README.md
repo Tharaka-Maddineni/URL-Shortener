@@ -16,7 +16,7 @@ Click on "get short URL" button to get shorten url.
 If any search item input is given in search item. If given any, the short url will give results related to given search item.
 
 # Dependencies
-Python 3.6
+Python 3.7
 flask
 string
 random
@@ -24,10 +24,10 @@ psycopg2
 
 ## How the application service looks like
 1. Inputs
-![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/URL+Search/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/URL+Search/.png)
 2. Short-URL
-![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/Short-URL/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Short-URL.png)
 3. Results Page
-![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/Results_page/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Results_page/.png)
 4. Database
-5. ![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/Database/.png)
+5. ![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Database/.png)
