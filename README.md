@@ -24,10 +24,10 @@ psycopg2
 
 ## How the application service looks like
 1. Inputs
-![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/URL+Search/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/URL+Search.png)
 2. Short-URL
 ![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Short-URL.png)
 3. Results Page
-![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Results_page/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Results_page.png)
 4. Database
-5. ![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Database/.png)
+![alt_text](https://github.com/tharakmaddineni17/URL-Shortener/blob/master/Database.png)
