@@ -281,6 +281,8 @@ class PostGreSQL:
             # Close the connection
             self.closeConnection(connection)
 
+            print(original_url)
+            print(original_url[0])
             return original_url[0]
 
         except Exception as e:
